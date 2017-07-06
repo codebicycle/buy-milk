@@ -27,8 +27,8 @@ def sessions_new():
 @app.route('/login', methods=['POST'])
 def sessions_create():
     session.clear()
-    email = request.form.get('email')
-    password = request.form.get('password')
+    email = request.form['email']
+    password = request.form['password']
     if are_valid_credentials(email, password):
         session['email'] = email
         return redirect( url_for('welcome'))
