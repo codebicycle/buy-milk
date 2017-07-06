@@ -5,8 +5,9 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def hello():
-    return 'Hello from Flask!'
+@app.route('/welcome')
+def welcome():
+    return render_template('welcome.html', title='Welcome')
 
 
 if __name__ == '__main__':
