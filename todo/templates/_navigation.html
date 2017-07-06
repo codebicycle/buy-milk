@@ -1,6 +1,6 @@
 <nav>
-  {% if session_email %}
-    <span>{{ session_email }}</span>
+  {% if session['email'] %}
+    <span>{{ session['email'] }}</span>
     <a href="{{ url_for('sessions_destroy') }}">Logout</a>
   {% endif %}
   <a href="{{ url_for('sessions_new') }}">Login</a>

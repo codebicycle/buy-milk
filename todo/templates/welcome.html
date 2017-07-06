@@ -3,9 +3,5 @@
 {% block title %}Welcome{% endblock %}
 
 {% block content %}
-  {% if session_email %}
-    <h1>Welcome {{ session_email }}</h1>
-  {% else %}
-    <h1>Welcome</h1>
-  {% endif %}
+  <h1>Welcome {{ session['email'] }}</h1>
 {% endblock %}
