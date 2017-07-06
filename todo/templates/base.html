@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}Todo{% endblock %}</title>
+
+  <!-- Custom CSS -->
+  <link type="text/css" href="{{ url_for('static', filename='style.css') }}"
+  rel="stylesheet">
+</head>
+
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>
