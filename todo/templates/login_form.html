@@ -12,7 +12,9 @@
       {% endif %}
     {% endwith %}
 
-    <input type="email" placeholder="email" name="email">
+
+    <input type="email" placeholder="email" name="email"
+      value="{% if email %}{{email}}{% endif %}">
     <br>
     <input type="password" placeholder="password" name="password">
     <br>

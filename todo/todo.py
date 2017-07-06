@@ -19,7 +19,8 @@ def welcome():
 
 @app.route('/login', methods=['GET'])
 def sessions_new():
-    return render_template('login_form.html')
+    email = request.args.get('email')
+    return render_template('login_form.html', email=email)
 
 
 @app.route('/login', methods=['POST'])
@@ -31,7 +32,7 @@ def sessions_create():
         return redirect( url_for('welcome'))
     else:
         flash("Email and password do not match!", 'error')
-        return redirect( url_for('sessions_new'))
+        return redirect( url_for('sessions_new', email=email))
 
 
 def are_valid_credentials(email, password):
