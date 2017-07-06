@@ -12,8 +12,6 @@ app.secret_key = SECRET_KEY
 @app.route('/welcome')
 def welcome():
     email = session.get('email')
-    if not email:
-        return redirect(url_for('sessions_new'))
     return render_template('welcome.html', title='Welcome', email=email)
 
 
@@ -33,6 +31,12 @@ def sessions_create():
     else:
         flash("Email and password do not match!", 'error')
         return redirect( url_for('sessions_new', email=email))
+
+
+@app.route('/logout', methods=['GET'])
+def sessions_destroy():
+    session.clear()
+    return redirect(url_for('welcome'))
 
 
 def are_valid_credentials(email, password):
