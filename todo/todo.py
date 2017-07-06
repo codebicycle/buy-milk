@@ -17,7 +17,7 @@ def welcome():
 @app.route('/login', methods=['GET'])
 def sessions_new():
     email = request.args.get('email')
-    return render_template('login_form.html', email=email)
+    return render_template('login.html', email=email)
 
 
 @app.route('/login', methods=['POST'])
