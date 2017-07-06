@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import (Flask, render_template, request, session, redirect, url_for,
+                   flash)
+
 
 
 app = Flask(__name__)
@@ -26,6 +28,7 @@ def sessions_create():
         session['email'] = email
         return redirect( url_for('welcome'))
     else:
+        flash("Email and password do not match!", 'error')
         return redirect( url_for('sessions_new'))
 
 
