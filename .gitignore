@@ -95,3 +95,6 @@ ENV/
 
 .idea/
 .fuse_hidden*
+
+# Secrets file
+secrets.py

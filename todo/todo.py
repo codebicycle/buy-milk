@@ -1,10 +1,12 @@
 from flask import (Flask, render_template, request, session, redirect, url_for,
                    flash)
 
+from secrets import SECRET_KEY
 
 
 app = Flask(__name__)
-app.secret_key = b'T\xa3\x92\r]\xea\x9db\x99s-\x17m\x8a\xe0\xd8\xf82*\xc4\x07\x12\xe3\x14'
+app.secret_key = SECRET_KEY
+
 
 @app.route('/')
 @app.route('/welcome')
