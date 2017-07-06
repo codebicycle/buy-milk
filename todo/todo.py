@@ -11,18 +11,22 @@ app.secret_key = SECRET_KEY
 @app.route('/')
 @app.route('/welcome')
 def welcome():
-    email = session.get('email')
-    return render_template('welcome.html', title='Welcome', email=email)
+    session_email = session.get('email')
+    return render_template('welcome.html', session_email=session_email)
 
 
 @app.route('/login', methods=['GET'])
 def sessions_new():
+    session_email = session.get('email')
     email = request.args.get('email')
-    return render_template('login_form.html', email=email)
+    return render_template('login_form.html',
+                            session_email=session_email,
+                            email=email)
 
 
 @app.route('/login', methods=['POST'])
 def sessions_create():
+    session.clear()
     email = request.form.get('email')
     password = request.form.get('password')
     if are_valid_credentials(email, password):
