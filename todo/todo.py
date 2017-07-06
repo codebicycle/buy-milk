@@ -15,7 +15,7 @@ def welcome():
 
 @app.route('/login', methods=['GET'])
 def sessions_new():
-    return render_template('login.html')
+    return render_template('login_form.html')
 
 
 @app.route('/login', methods=['POST'])
