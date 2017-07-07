@@ -4,6 +4,7 @@
 
     <form action="{{ url_for('sessions_destroy') }}" method="post">
       <button>Logout</button>
+      <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
     </form>
   {% endif %}
   <a href="{{ url_for('sessions_new') }}">Login</a>

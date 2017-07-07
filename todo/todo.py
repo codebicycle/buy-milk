@@ -1,5 +1,8 @@
+import base64
+import os
+
 from flask import (Flask, render_template, request, session, redirect, url_for,
-                   flash)
+                   flash, abort)
 
 from secrets import SECRET_KEY
 
@@ -69,6 +72,18 @@ def accounts_create():
     return redirect(url_for('welcome'))
 
 
+@app.before_request
+def csrf_protect():
+    if request.method in ['POST', 'PUT', 'DELETE']:
+        token = session.pop('csrf_token', None)
+        if not token or token != request.form.get('csrf-token'):
+            abort(403)
+
+    if request.method in ['GET'] and 'csrf_token' not in session:
+        session['csrf_token'] = token_urlsafe()
+
+
+
 CREDENTIALS = {
     'user@example.com': 'test',
     'test@example.com': 'test',
@@ -79,6 +94,17 @@ def account_exists(email):
 
 def valid_credentials(email, password):
     return email in CREDENTIALS and password == CREDENTIALS[email]
+
+
+def token_urlsafe(num_bytes=16):
+    """Return a random URL-safe text string, in Base64 encoding.
+
+    Source: Python 3.6 secrets.token_urlsafe()
+    https://github.com/python/cpython/blob/master/Lib/secrets.py
+
+    """
+    token = os.urandom(num_bytes)
+    return base64.urlsafe_b64encode(token).rstrip(b'=').decode('ascii')
 
 
 if __name__ == '__main__':
