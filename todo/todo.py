@@ -33,7 +33,7 @@ def sessions_create():
         return redirect(url_for('sessions_new', email=email))
 
 
-@app.route('/logout', methods=['GET'])
+@app.route('/logout', methods=['POST'])
 def sessions_destroy():
     session.clear()
     return redirect(url_for('welcome'))

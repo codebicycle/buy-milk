@@ -5,9 +5,15 @@ body {
 .error {
     color: tomato;
 }
+
 .warning {
     color: orange;
 }
+
 .message {
     color: seagreen;
+}
+
+nav > form {
+    display: inline;
 }

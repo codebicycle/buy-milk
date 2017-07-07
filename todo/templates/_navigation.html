@@ -1,7 +1,10 @@
 <nav>
   {% if session['email'] %}
     <span>{{ session['email'] }}</span>
-    <a href="{{ url_for('sessions_destroy') }}">Logout</a>
+
+    <form action="{{ url_for('sessions_destroy') }}" method="post">
+      <button>Logout</button>
+    </form>
   {% endif %}
   <a href="{{ url_for('sessions_new') }}">Login</a>
   <a href="{{ url_for('accounts_new') }}">Create account</a>
