@@ -45,11 +45,39 @@ def accounts_new():
     return render_template('register.html', email=email)
 
 
+@app.route('/register', methods=['POST'])
+def accounts_create():
+    email = request.form['email']
+    password = request.form['password']
+    password_confirm = request.form['password_confirm']
+    if not email or not password or not password_confirm:
+        flash("All fields should be filled!", 'error')
+        return redirect(url_for('accounts_new', email=email))
+
+    if password != password_confirm:
+        flash("Passwords do not match!", 'error')
+        return redirect(url_for('accounts_new', email=email))
+
+    if account_exists(email):
+        message = 'An account using {} is already registered!'.format(email)
+        flash(message, 'error')
+        return redirect(url_for('accounts_new'))
+
+    session.clear()
+    session['email'] = email
+    return redirect(url_for('welcome'))
+
+
+CREDENTIALS = {
+    'user@example.com': 'test',
+    'test@example.com': 'test',
+}
+
+def account_exists(email):
+    return email in CREDENTIALS
+
 def valid_credentials(email, password):
-    credentials = {
-        'user@example.com': 'test',
-    }
-    return email in credentials and password == credentials[email]
+    return email in CREDENTIALS and password == CREDENTIALS[email]
 
 
 if __name__ == '__main__':
