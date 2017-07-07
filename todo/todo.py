@@ -39,6 +39,12 @@ def sessions_destroy():
     return redirect(url_for('welcome'))
 
 
+@app.route('/register', methods=['GET'])
+def accounts_new():
+    email = request.args.get('email')
+    return render_template('register.html', email=email)
+
+
 def valid_credentials(email, password):
     credentials = {
         'user@example.com': 'test',
