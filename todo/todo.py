@@ -59,6 +59,7 @@ def accounts_create():
         return redirect(url_for('accounts_new', email=email))
 
     if account_exists(email):
+        # Flash messages are HTML escaped by the framework.
         message = 'An account using {} is already registered!'.format(email)
         flash(message, 'error')
         return redirect(url_for('accounts_new'))

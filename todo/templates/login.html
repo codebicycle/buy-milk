@@ -5,16 +5,6 @@
 {% block content %}
   <h1>Login</h1>
   <form method="Post" action="/login">
-
-    {% with errors = get_flashed_messages(category_filter=['error']) %}
-      {% if errors %}
-        {% for error in errors %}
-        <p class='error'>{{ error }}</p>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-
     <input type="email" placeholder="email" name="email"
       value="{% if email %}{{email}}{% endif %}">
     <br>

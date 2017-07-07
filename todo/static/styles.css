@@ -5,3 +5,9 @@ body {
 .error {
     color: tomato;
 }
+.warning {
+    color: orange;
+}
+.message {
+    color: seagreen;
+}

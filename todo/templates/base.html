@@ -14,6 +14,12 @@
 <body>
   {% include '_navigation.html' %}
 
+  {% with messages = get_flashed_messages(with_categories=True) %}
+      {% for category, message in messages %}
+        <p class="{{ category }}">{{ message }}</p>
+      {% endfor %}
+  {% endwith %}
+
   {% block content %}{% endblock %}
 </body>
 </html>
