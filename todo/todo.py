@@ -1,14 +1,33 @@
 import base64
 import os
 
+import bcrypt
 from flask import (Flask, render_template, request, session, redirect, url_for,
                    flash, abort)
+from flask_sqlalchemy import SQLAlchemy
 
 from secrets import SECRET_KEY
 
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////db/development.sqlite3'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+
+class User(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), unique=True)
+    password_hash = db.Column(db.Binary(60))
+
+    def __init__(self, email, password):
+        self.email = email.lower()
+        self.password_hash = bcrypt.hashpw(password.encode('utf8'), bcrypt.gensalt())
+
+    def is_valid_password(self, password):
+        return bcrypt.checkpw(password.encode('utf8'), self.password_hash)
 
 
 @app.route('/')
