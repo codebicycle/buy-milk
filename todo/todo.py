@@ -74,14 +74,14 @@ def accounts_create():
 
 @app.before_request
 def csrf_protect():
+    if request.method == 'GET' and 'csrf_token' not in session:
+        session['csrf_token'] = token_urlsafe()
+        return None
+
     if request.method in ['POST', 'PUT', 'DELETE']:
         token = session.pop('csrf_token', None)
         if not token or token != request.form.get('csrf-token'):
             abort(403)
-
-    if request.method in ['GET'] and 'csrf_token' not in session:
-        session['csrf_token'] = token_urlsafe()
-
 
 
 CREDENTIALS = {
