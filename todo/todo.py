@@ -51,7 +51,8 @@ def sessions_create():
     session.clear()
     email = request.form['email']
     password = request.form['password']
-    if valid_credentials(email, password):
+    user = User.query.filter_by(email=email.lower()).first()
+    if user and user.is_valid_password(password):
         session['email'] = email
         return redirect(url_for('welcome'))
     else:
@@ -110,15 +111,6 @@ def csrf_protect():
         token = session.pop('csrf_token', None)
         if not token or token != request.form.get('csrf-token'):
             abort(403)
-
-
-CREDENTIALS = {
-    'user@example.com': 'test',
-    'test@example.com': 'test',
-}
-
-def valid_credentials(email, password):
-    return email in CREDENTIALS and password == CREDENTIALS[email]
 
 
 def token_urlsafe(num_bytes=16):
