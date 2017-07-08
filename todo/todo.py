@@ -5,13 +5,14 @@ import bcrypt
 from flask import (Flask, render_template, request, session, redirect, url_for,
                    flash, abort)
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
 
 from secrets import SECRET_KEY
 
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////db/development.sqlite3'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/development.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -28,6 +29,9 @@ class User(db.Model):
 
     def is_valid_password(self, password):
         return bcrypt.checkpw(password.encode('utf8'), self.password_hash)
+
+    def __repr__(self):
+        return '<User {}>'.format(self.email)
 
 
 @app.route('/')
@@ -80,12 +84,17 @@ def accounts_create():
         flash("Passwords do not match!", 'error')
         return redirect(url_for('accounts_new', email=email))
 
-    if account_exists(email):
-        # Flash messages are HTML escaped by the framework.
+    user = User(email, password)
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except IntegrityError as e:
+        app.logger.error(e)
         message = 'An account using {} is already registered!'.format(email)
         flash(message, 'error')
         return redirect(url_for('accounts_new'))
 
+    flash('{} succesfully registered'.format(email))
     session.clear()
     session['email'] = email
     return redirect(url_for('welcome'))
@@ -107,9 +116,6 @@ CREDENTIALS = {
     'user@example.com': 'test',
     'test@example.com': 'test',
 }
-
-def account_exists(email):
-    return email in CREDENTIALS
 
 def valid_credentials(email, password):
     return email in CREDENTIALS and password == CREDENTIALS[email]
