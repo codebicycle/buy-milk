@@ -98,3 +98,6 @@ ENV/
 
 # Secrets file
 secrets.py
+
+# Database
+*.sqlite3
