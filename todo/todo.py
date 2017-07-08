@@ -94,7 +94,8 @@ def sessions_create():
     password = request.form['password']
     user = User.query.filter_by(email=email.lower()).first()
     if user and user.is_valid_password(password):
-        session['email'] = email
+        session['email'] = user.email
+        session['user_id'] = user.id
         return redirect(url_for('welcome'))
     else:
         flash("Email and password do not match!", 'error')
@@ -138,13 +139,35 @@ def accounts_create():
 
     flash('{} succesfully registered'.format(email))
     session.clear()
-    session['email'] = email
+    session['email'] = user.email
+    session['user_id'] = user.id
     return redirect(url_for('welcome'))
 
 
 @app.route('/todos/new', methods=['GET'])
 def todos_new():
     return render_template('todos_new.html')
+
+
+@app.route('/todos/create', methods=['POST'])
+def todos_create():
+    return "Create todo"
+
+
+@app.route('/todos/<todo_id>', methods=['GET'])
+def todos_edit(todo_id):
+    todo = Todo.query.get(todo_id)
+    return render_template('todos_edit.html', todo=todo)
+
+
+@app.route('/todos/<todo_id>', methods=['POST'])
+def todos_update(todo_id):
+    return "Update todo"
+
+@app.route('/tasks/create', methods=['POST'])
+def tasks_create():
+    return "Create task"
+
 
 
 @app.before_request
