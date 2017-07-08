@@ -17,6 +17,23 @@ body {
 nav {
     margin-bottom: 2em;
 }
+
 nav > form {
     display: inline;
+}
+
+.edit-in-place {
+    border: none;
+}
+
+.edit-in-place:hover,
+.edit-in-place:active,
+.edit-in-place:focus {
+    width: 100%;
+    background-color: #FFD;
+    transition: background-color 0.5s;
+}
+
+.hidden {
+    display: none;
 }

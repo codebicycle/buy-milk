@@ -3,25 +3,14 @@
 {% block title %}Todo New{% endblock %}
 
 {% block content %}
-<form>
-  <input type="text" name="title" placeholder="title">
-</form>
 
-<ul>
-  <li>
-    <input type="checkbox" name="done">
-    <span>Buy milk</span>
-    <button>X</button>
-  </li>
-  <li>
-    <input type="checkbox" name="done">
-    <span>Walk Milo</span>
-    <button>X</button>
-  </li>
-</ul>
-
-<form>
-  <input type="text" name="todo" placeholder="add task">
-  <button>Add</button>
+<form method="post" action="{{ url_for('todos_create') }}">
+  <div class="input-group">
+    <input class="form-control" type="text" name="title" placeholder="add title">
+    <span class="input-group-btn">
+      <button class="btn btn-secondary" type="submit">Add</button>
+    </span>
+  </div>
+  <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
 </form>
 {% endblock %}
