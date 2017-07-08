@@ -14,6 +14,9 @@ body {
     color: seagreen;
 }
 
+nav {
+    margin-bottom: 2em;
+}
 nav > form {
     display: inline;
 }

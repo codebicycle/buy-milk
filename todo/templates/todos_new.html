@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Todo New{% endblock %}
+
+{% block content %}
+<form>
+  <input type="text" name="title" placeholder="title">
+</form>
+
+<ul>
+  <li>
+    <input type="checkbox" name="done">
+    <span>Buy milk</span>
+    <button>X</button>
+  </li>
+  <li>
+    <input type="checkbox" name="done">
+    <span>Walk Milo</span>
+    <button>X</button>
+  </li>
+</ul>
+
+<form>
+  <input type="text" name="todo" placeholder="add task">
+  <button>Add</button>
+</form>
+{% endblock %}

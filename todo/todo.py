@@ -142,6 +142,11 @@ def accounts_create():
     return redirect(url_for('welcome'))
 
 
+@app.route('/todos/new', methods=['GET'])
+def todos_new():
+    return render_template('todos_new.html')
+
+
 @app.before_request
 def csrf_protect():
     if request.method == 'GET' and 'csrf_token' not in session:
