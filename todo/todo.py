@@ -219,7 +219,23 @@ def task_create():
     return redirect(url_for('todo_edit', todo_id=todo.id))
 
 
-@app.route('/tasks/<task_id>/delete')
+@app.route('/task/<task_id>/update', methods=['POST'])
+def task_update(task_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        abort(401)
+
+    task = Task.query.get_or_404(task_id)
+    if task.todo.user_id != user_id:
+        abort(403)
+
+    task.done = not task.done
+    db.session.commit()
+
+    return redirect(url_for('todo_edit', todo_id=task.todo_id))
+
+
+@app.route('/tasks/<task_id>/delete', methods=['POST'])
 def task_destroy(task_id):
     user_id = session.get('user_id')
     if not user_id:

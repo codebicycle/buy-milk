@@ -7,7 +7,7 @@
   <p class="h1">{{ todo.title }}</h1>
   <ul class="list-group">
   {% for task in todo.tasks %}
-    <li class="list-group-item">{{ task.title }}</li>
+    <li class="list-group-item {% if task.done %}task-done{% endif %}">{{ task.title }}</li>
   {% endfor %}
   </ul>
 

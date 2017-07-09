@@ -11,7 +11,7 @@
         <span class="h4">{{ todo.title }}</span>
         <ul>
           {% for task in todo.tasks %}
-            <li class="list-unstyled">{{ task.title }}</li>
+            <li class="list-unstyled {% if task.done %}task-done{% endif %}">{{ task.title }}</li>
           {% endfor %}
         </ul>
       </a>

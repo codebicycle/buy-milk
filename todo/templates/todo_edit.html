@@ -4,6 +4,7 @@
 
 {% block content %}
 
+
 <form method="post" action="{{ url_for('todo_update', todo_id=todo.id) }}">
   <input class="h1 edit-in-place" type="text" name="title" value="{{ todo.title }}">
   <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
@@ -11,13 +12,21 @@
 </form>
 
   <ul class="list-group">
+
   {% for task in todo.tasks %}
-    <li class="list-group-item">
-      {{ task.title }}
-      <form action="{{ url_for('task_destroy', task_id=task.id) }}">
+    <li class="task list-group-item justify-content-between">
+      <form class="task col col-xs-11" method="post" action="{{ url_for('task_update', task_id=task.id) }}">
+        <button class="task {% if task.done %}task-done{% endif %}">
+          {{ task.title }}
+        </button>
+        <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
+      </form>
+
+      <form method="post" action="{{ url_for('task_destroy', task_id=task.id) }}">
         <button class="close" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
+        <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
       </form>
     </li>
   {% endfor %}
@@ -34,4 +43,5 @@
   <input type="hidden" name="todo_id" value="{{ todo.id }}">
   <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
 </form>
+
 {% endblock %}
