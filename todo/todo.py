@@ -144,7 +144,7 @@ def accounts_create():
     return redirect(url_for('index'))
 
 
-@app.route('/todos', methods=['GET'])
+@app.route('/todos/', methods=['GET'])
 def todos_show():
     todos = Todo.query.filter_by(private=False).all()
     return render_template('todos_show.html', todos=todos)
@@ -163,12 +163,21 @@ def todo_create():
 @app.route('/todos/<todo_id>', methods=['GET'])
 def todo_show(todo_id):
     todo = Todo.query.get_or_404(todo_id)
+    if todo.user_id != session.get('user_id') and todo.private is True:
+        abort(403)
+
     return render_template('todo_show.html', todo=todo)
 
 
 @app.route('/todos/<todo_id>/edit', methods=['GET'])
 def todo_edit(todo_id):
     todo = Todo.query.get_or_404(todo_id)
+    if todo.user_id != session.get('user_id'):
+        if todo.private is True:
+            abort(403)
+        else:
+            return redirect(url_for('todo_show', todo_id=todo_id))
+
     return render_template('todo_edit.html', todo=todo)
 
 
