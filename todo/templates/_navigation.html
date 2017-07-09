@@ -1,12 +1,35 @@
-<nav>
-  {% if session['email'] %}
-    <span>{{ session['email'] }}</span>
+<nav class="navbar navbar-toggleable-sm navbar-light bg-faded justify-content-between">
+  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#nav-content" aria-controls="nav-content" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
-    <form action="{{ url_for('sessions_destroy') }}" method="post">
-      <button>Logout</button>
-      <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
-    </form>
-  {% endif %}
-  <a href="{{ url_for('sessions_new') }}">Login</a>
-  <a href="{{ url_for('accounts_new') }}">Create account</a>
+
+  <ul class="navbar-nav">
+    <a class="navbar-brand" href="{{ url_for('todos_show') }}">Todo</a>
+    {% if session['email'] %}
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('todo_new') }}">Add</a>
+    </li>
+    {% endif %}
+  </ul>
+
+
+  <ul class="navbar-nav">
+    {% if session['email'] %}
+    <li class="nav-item">
+        <form action="{{ url_for('sessions_destroy') }}" method="post">
+          <span class="navbar-text">{{ session['email'] }}</span>
+          <button class="btn-link navbar-text">Logout</button>
+          <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
+        </form>
+    </li>
+    {% else %}
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('sessions_new') }}">Login</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('accounts_new') }}">Register</a>
+    </li>
+    {% endif %}
+  </ul>
 </nav>

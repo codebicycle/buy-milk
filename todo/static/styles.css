@@ -18,10 +18,6 @@ nav {
     margin-bottom: 2em;
 }
 
-nav > form {
-    display: inline;
-}
-
 .edit-in-place {
     border: none;
 }
