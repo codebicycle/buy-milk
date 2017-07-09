@@ -155,14 +155,21 @@ def todos_create():
 
 
 @app.route('/todos/<todo_id>', methods=['GET'])
+def todos_show(todo_id):
+    todo = Todo.query.get_or_404(todo_id)
+    return render_template('todos_show.html', todo=todo)
+
+
+@app.route('/todos/<todo_id>/edit', methods=['GET'])
 def todos_edit(todo_id):
-    todo = Todo.query.get(todo_id)
+    todo = Todo.query.get_or_404(todo_id)
     return render_template('todos_edit.html', todo=todo)
 
 
 @app.route('/todos/<todo_id>', methods=['POST'])
 def todos_update(todo_id):
     return "Update todo"
+
 
 @app.route('/tasks/create', methods=['POST'])
 def tasks_create():
