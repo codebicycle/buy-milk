@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Todos{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  {%  for todo in todos %}
+    <div class="col-sm-6 col-md-4">
+      <a class="thumbnail" href="{{ url_for('todo_show', todo_id=todo.id) }}">
+        <span class="h4">{{ todo.title }}</span>
+        <ul>
+          {% for task in todo.tasks %}
+            <li class="list-unstyled">{{ task.title }}</li>
+          {% endfor %}
+        </ul>
+      </a>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

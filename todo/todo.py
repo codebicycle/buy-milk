@@ -78,7 +78,7 @@ class Task(db.Model):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('welcome.html')
+    return redirect(url_for('todos_show'))
 
 
 @app.route('/login', methods=['GET'])
@@ -142,6 +142,12 @@ def accounts_create():
     session['email'] = user.email
     session['user_id'] = user.id
     return redirect(url_for('index'))
+
+
+@app.route('/todos', methods=['GET'])
+def todos_show():
+    todos = Todo.query.filter_by(private=False).all()
+    return render_template('todos_show.html', todos=todos)
 
 
 @app.route('/todos/new', methods=['GET'])
