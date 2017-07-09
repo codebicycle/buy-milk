@@ -76,8 +76,8 @@ class Task(db.Model):
 
 
 @app.route('/')
-@app.route('/welcome')
-def welcome():
+@app.route('/index')
+def index():
     return render_template('welcome.html')
 
 
@@ -96,7 +96,7 @@ def sessions_create():
     if user and user.is_valid_password(password):
         session['email'] = user.email
         session['user_id'] = user.id
-        return redirect(url_for('welcome'))
+        return redirect(url_for('index'))
     else:
         flash("Email and password do not match!", 'error')
         return redirect(url_for('sessions_new', email=email))
@@ -105,7 +105,7 @@ def sessions_create():
 @app.route('/logout', methods=['POST'])
 def sessions_destroy():
     session.clear()
-    return redirect(url_for('welcome'))
+    return redirect(url_for('index'))
 
 
 @app.route('/register', methods=['GET'])
@@ -141,38 +141,38 @@ def accounts_create():
     session.clear()
     session['email'] = user.email
     session['user_id'] = user.id
-    return redirect(url_for('welcome'))
+    return redirect(url_for('index'))
 
 
 @app.route('/todos/new', methods=['GET'])
-def todos_new():
-    return render_template('todos_new.html')
+def todo_new():
+    return render_template('todo_new.html')
 
 
 @app.route('/todos/create', methods=['POST'])
-def todos_create():
+def todo_create():
     return "Create todo"
 
 
 @app.route('/todos/<todo_id>', methods=['GET'])
-def todos_show(todo_id):
+def todo_show(todo_id):
     todo = Todo.query.get_or_404(todo_id)
-    return render_template('todos_show.html', todo=todo)
+    return render_template('todo_show.html', todo=todo)
 
 
 @app.route('/todos/<todo_id>/edit', methods=['GET'])
-def todos_edit(todo_id):
+def todo_edit(todo_id):
     todo = Todo.query.get_or_404(todo_id)
-    return render_template('todos_edit.html', todo=todo)
+    return render_template('todo_edit.html', todo=todo)
 
 
 @app.route('/todos/<todo_id>', methods=['POST'])
-def todos_update(todo_id):
+def todo_update(todo_id):
     return "Update todo"
 
 
 @app.route('/tasks/create', methods=['POST'])
-def tasks_create():
+def task_create():
     return "Create task"
 
 

@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<form method="post" action="{{ url_for('todos_update', todo_id=todo.id) }}">
+<form method="post" action="{{ url_for('todo_update', todo_id=todo.id) }}">
   <input class="h1 edit-in-place" type="text" name="title" value="{{ todo.title }}">
   <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
   <input type="submit" value="Update" class="hidden">
@@ -22,7 +22,7 @@
   </ul>
   <br>
 
-<form method="post" action="{{ url_for('tasks_create') }}">
+<form method="post" action="{{ url_for('task_create') }}">
   <div class="input-group">
     <input type="text" class="form-control" name="task" placeholder="add task">
     <span class="input-group-btn">
