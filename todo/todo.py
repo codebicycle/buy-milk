@@ -202,7 +202,21 @@ def todo_update(todo_id):
 
 @app.route('/tasks/create', methods=['POST'])
 def task_create():
-    return "Create task"
+    user_id = session.get('user_id')
+    if not user_id:
+        abort(401)
+
+    todo_id = request.form['todo_id']
+
+    # Check the todo edited is owned by the user
+    todo = Todo.query.get_or_404(todo_id)
+    if todo.user_id != user_id:
+        abort(403)
+
+    task = Task(request.form['task'], todo_id)
+    db.session.add(task)
+    db.session.commit()
+    return redirect(url_for('todo_edit', todo_id=todo.id))
 
 
 
