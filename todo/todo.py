@@ -219,6 +219,21 @@ def task_create():
     return redirect(url_for('todo_edit', todo_id=todo.id))
 
 
+@app.route('/tasks/<task_id>/delete')
+def task_destroy(task_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        abort(401)
+
+    task = Task.query.get_or_404(task_id)
+    if task.todo.user_id != user_id:
+        abort(403)
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return redirect(url_for('todo_edit', todo_id=task.todo_id))
+
 
 @app.before_request
 def csrf_protect():

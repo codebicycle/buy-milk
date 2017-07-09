@@ -14,9 +14,11 @@
   {% for task in todo.tasks %}
     <li class="list-group-item">
       {{ task.title }}
-      <button type="button" class="close" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
+      <form action="{{ url_for('task_destroy', task_id=task.id) }}">
+        <button class="close" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </form>
     </li>
   {% endfor %}
   </ul>
