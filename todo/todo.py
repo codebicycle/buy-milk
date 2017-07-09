@@ -211,6 +211,20 @@ def todo_update(todo_id):
     return redirect(url_for('todo_edit', todo_id=todo.id))
 
 
+@app.route('/todos/<todo_id>/delete', methods=['POST'])
+def todo_destroy(todo_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        abort(401)
+
+    # Check the todo edited is owned by the user
+    todo = Todo.query.get_or_404(todo_id)
+    if todo.user_id != user_id:
+        abort(403)
+
+    db.session.delete(todo)
+    db.session.commit()
+    return redirect(url_for('todos_show'))
 
 
 @app.route('/tasks/create', methods=['POST'])
