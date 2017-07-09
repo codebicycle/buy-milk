@@ -152,12 +152,26 @@ def todos_show():
 
 @app.route('/todos/new', methods=['GET'])
 def todo_new():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('Only logged-in users can create todo lists.')
+        return redirect(url_for('sessions_new'))
+
     return render_template('todo_new.html')
 
 
 @app.route('/todos/create', methods=['POST'])
 def todo_create():
-    return "Create todo"
+    user_id = session.get('user_id')
+    if not user_id:
+        abort(401)
+
+    title = request.form['title']
+    todo = Todo(title, user_id)
+    db.session.add(todo)
+    db.session.commit()
+    return redirect(url_for('todo_edit', todo_id=todo.id))
+
 
 
 @app.route('/todos/<todo_id>', methods=['GET'])
