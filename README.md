@@ -1,3 +1,3 @@
 # Todo
 
-Todo is a web application writtern in Flask.
+Todo is a web application written in Flask.
