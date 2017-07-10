@@ -1,78 +1,13 @@
 import base64
-from datetime import datetime
 import os
 
-import bcrypt
-from flask import (Flask, render_template, request, session, redirect, url_for,
+from flask import (render_template, request, session, redirect, url_for,
                    flash, abort)
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 
-from secrets import SECRET_KEY
-
-
-app = Flask(__name__)
-app.secret_key = SECRET_KEY
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/development.sqlite3'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-
-
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), unique=True)
-    password_hash = db.Column(db.Binary(60))
-    todos = db.relationship('Todo', backref='user', lazy='dynamic')
-
-    def __init__(self, email, password):
-        self.email = email.lower()
-        self.password_hash = bcrypt.hashpw(password.encode('utf8'), bcrypt.gensalt())
-
-    def is_valid_password(self, password):
-        return bcrypt.checkpw(password.encode('utf8'), self.password_hash)
-
-    def __repr__(self):
-        return '<User {}>'.format(self.email)
-
-
-class Todo(db.Model):
-    __tablename__ = 'todos'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255))
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    private = db.Column(db.Boolean)
-    date_created = db.Column(db.DateTime)
-    tasks = db.relationship('Task', backref='todo', lazy='select')
-
-
-    def __init__(self, title, user_id, private=False):
-        self.title = title
-        self.user_id = user_id
-        self.private = private
-        self.date_created = datetime.utcnow()
-
-    def __repr__(self):
-        return '<Todo {}>'.format(self.title)
-
-
-class Task(db.Model):
-    __tablename__ = 'tasks'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255))
-    done = db.Column(db.Boolean)
-    date_completed = db.Column(db.DateTime)
-    todo_id = db.Column(db.Integer, db.ForeignKey('todos.id'))
-
-    def __init__(self, title, todo_id, done=False, date_completed=None):
-        self.title = title
-        self.todo_id = todo_id
-        self.done = done
-        self.date_completed = date_completed
-
-    def __repr__(self):
-        return '<Task {}>'.format(self.title)
-
+from todo import app
+from todo import db
+from todo.models import User, Todo, Task
 
 
 @app.route('/')
@@ -299,7 +234,3 @@ def token_urlsafe(num_bytes=16):
     """
     token = os.urandom(num_bytes)
     return base64.urlsafe_b64encode(token).rstrip(b'=').decode('ascii')
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
