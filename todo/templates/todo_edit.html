@@ -3,11 +3,25 @@
 {% block title %}{{ todo.title }}{% endblock %}
 
 {% block content %}
+
+<div class="dropdown text-right mb-2">
+  <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <span class="gear">⚙</span>
+  </button>
+  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+    <form method="post" action="{{ url_for('todo_destroy', todo_id=todo.id) }}">
+      <button class="btn btn-danger w-100" type="submit">Delete List</button>
+      <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
+    </form>
+  </div>
+</div>
+
 <form method="post" action="{{ url_for('todo_update', todo_id=todo.id) }}">
-  <input class="h1 edit-in-place" type="text" name="title" value="{{ todo.title }}">
+  <input class="mb-2 edit-in-place" type="text" name="title" value="{{ todo.title }}">
   <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
   <input type="submit" value="Update" class="hidden">
 </form>
+
 
 <ul class="list-group">
 {% for task in todo.tasks %}
@@ -41,9 +55,4 @@
   <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
 </form>
 
-<br>
-<form method="post" action="{{ url_for('todo_destroy', todo_id=todo.id) }}">
-  <button class="btn btn-danger delete-button" type="submit">Delete List</button>
-  <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
-</form>
 {% endblock %}
