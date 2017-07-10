@@ -14,10 +14,6 @@ body {
     color: seagreen;
 }
 
-nav {
-    margin-bottom: 2em;
-}
-
 .edit-in-place {
     border: none;
 }
@@ -34,14 +30,7 @@ nav {
     display: none;
 }
 
-.thumbnail {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    height: 100%;
-    display: block;
-}
-
-a.thumbnail {
+a.todo-link {
     color: inherit;
     text-decoration: none;
 }
@@ -67,7 +56,7 @@ form.task {
     padding-left: 0;
 }
 
-.list-group-item {
+.list-group-item.task {
     font-size: 1.3rem;
 }
 
