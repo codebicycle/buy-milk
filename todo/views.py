@@ -81,8 +81,14 @@ def accounts_create():
 
 @app.route('/todos/', methods=['GET'])
 def todos_show():
-    todos = Todo.query.filter_by(private=False).all()
-    return render_template('todos_show.html', todos=todos)
+    user_todos = Todo.query.filter_by(user_id=session.get('user_id')).all()
+    others_todos = Todo.query.filter(
+        Todo.private == False,
+        Todo.user_id != session.get('user_id')
+    ).all()
+
+    return render_template('todos_show.html', user_todos=user_todos,
+                            others_todos=others_todos)
 
 
 @app.route('/todos/new', methods=['GET'])

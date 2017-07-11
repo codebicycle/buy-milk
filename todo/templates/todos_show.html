@@ -5,7 +5,22 @@
 {% block content %}
 
 <div class="row">
-  {%  for todo in todos %}
+  {%  for todo in user_todos %}
+  <div class="col col-md-4 col-sm-6 col-12 mb-5">
+    <div class="card card-block border">
+      <a  class="todo-link" href="{{ url_for('todo_edit', todo_id=todo.id) }}">
+        <h4 class="card-title h4">{{ todo.title }}</h4>
+        <ul class="list-group list-group-flush">
+          {% for task in todo.tasks %}
+            <li class="list-group-item {% if task.done %}task-done{% endif %}">{{ task.title }}</li>
+          {% endfor %}
+        </ul>
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+
+  {%  for todo in others_todos %}
   <div class="col col-md-4 col-sm-6 col-12 mb-5">
     <div class="card card-block">
       <a  class="todo-link" href="{{ url_for('todo_edit', todo_id=todo.id) }}">
