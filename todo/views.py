@@ -1,6 +1,3 @@
-import base64
-import os
-
 from flask import (render_template, request, session, redirect, url_for,
                    flash, abort)
 from sqlalchemy.exc import IntegrityError
@@ -8,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from todo import app
 from todo import db
 from todo.models import User, Todo, Task
+from todo.utils import https_only, token_urlsafe
 
 
 @app.route('/')
@@ -229,14 +227,3 @@ def csrf_protect():
         token = session.pop('csrf_token', None)
         if not token or token != request.form.get('csrf-token'):
             abort(403)
-
-
-def token_urlsafe(num_bytes=16):
-    """Return a random URL-safe text string, in Base64 encoding.
-
-    Source: Python 3.6 secrets.token_urlsafe()
-    https://github.com/python/cpython/blob/master/Lib/secrets.py
-
-    """
-    token = os.urandom(num_bytes)
-    return base64.urlsafe_b64encode(token).rstrip(b'=').decode('ascii')
