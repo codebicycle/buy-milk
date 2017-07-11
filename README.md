@@ -23,8 +23,7 @@ How to generate good secret keys
     >>> import os
     >>> os.urandom(24)
 
-Initialize database
 
-    flask db init
-    flask db migrate
+Run database migrations
+
     flask db upgrade
