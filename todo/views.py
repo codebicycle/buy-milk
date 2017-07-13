@@ -1,6 +1,7 @@
 from flask import (render_template, request, session, redirect, url_for,
                    flash, abort)
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import or_
 
 from todo import app
 from todo import db
@@ -79,11 +80,22 @@ def accounts_create():
 
 @app.route('/todos/', methods=['GET'])
 def todos_show():
-    user_todos = Todo.query.filter_by(user_id=session.get('user_id')).all()
-    others_todos = Todo.query.filter(
-        Todo.private == False,
-        Todo.user_id != session.get('user_id')
-    ).all()
+    if 'user_id' in session:
+        user_todos = Todo.query.filter_by(user_id=session['user_id'])
+        others_todos = (Todo.query
+            .filter(Todo.private == False)
+            .filter(or_(Todo.user_id != session['user_id'],
+                        Todo.user_id.is_(None)))
+        ).all()
+    elif 'new_todos' in session:
+        user_todos = Todo.query.filter(Todo.id.in_(session['new_todos'])).all()
+        others_todos = (Todo.query
+            .filter(Todo.private == False)
+            .filter(Todo.id.notin_(session['new_todos']))
+        ).all()
+    else:
+        user_todos = []
+        others_todos = Todo.query.all()
 
     return render_template('todos_show.html', user_todos=user_todos,
                             others_todos=others_todos)
@@ -91,58 +103,59 @@ def todos_show():
 
 @app.route('/todos/new', methods=['GET'])
 def todo_new():
-    user_id = session.get('user_id')
-    if not user_id:
-        flash('Only logged-in users can create todo lists.')
-        return redirect(url_for('sessions_new'))
-
     return render_template('todo_new.html')
 
 
 @app.route('/todos/create', methods=['POST'])
 def todo_create():
     user_id = session.get('user_id')
-    if not user_id:
-        abort(401)
+    # if not user_id:
+    #     abort(401)
 
     title = request.form['title']
     todo = Todo(title, user_id)
     db.session.add(todo)
     db.session.commit()
+    if user_id not in session:
+        if 'new_todos' not in session:
+            session['new_todos'] = list()
+        session['new_todos'].append(todo.id)
+
     return redirect(url_for('todo_edit', todo_id=todo.id))
 
 
-
-@app.route('/todos/<todo_id>', methods=['GET'])
+@app.route('/todos/<int:todo_id>', methods=['GET'])
 def todo_show(todo_id):
     todo = Todo.query.get_or_404(todo_id)
-    if todo.user_id != session.get('user_id') and todo.private is True:
+    if not is_created_by_current_user(todo) and todo.private:
         abort(403)
 
     return render_template('todo_show.html', todo=todo)
 
 
-@app.route('/todos/<todo_id>/edit', methods=['GET'])
+@app.route('/todos/<int:todo_id>/edit', methods=['GET'])
 def todo_edit(todo_id):
     todo = Todo.query.get_or_404(todo_id)
-    if todo.user_id != session.get('user_id'):
-        if todo.private is True:
-            abort(403)
-        else:
-            return redirect(url_for('todo_show', todo_id=todo_id))
+    if not is_created_by_current_user(todo):
+        return redirect(url_for('todo_show', todo_id=todo_id))
 
     return render_template('todo_edit.html', todo=todo)
 
 
-@app.route('/todos/<todo_id>', methods=['POST'])
-def todo_update(todo_id):
+def is_created_by_current_user(todo):
     user_id = session.get('user_id')
-    if not user_id:
-        abort(401)
+    if user_id:
+        return todo.user_id == user_id
+    elif 'new_todos' in session:
+        return todo.id in session['new_todos']
+    else:
+        return False
 
-    # Check the todo edited is owned by the user
+
+@app.route('/todos/<int:todo_id>', methods=['POST'])
+def todo_update(todo_id):
     todo = Todo.query.get_or_404(todo_id)
-    if todo.user_id != user_id:
+    if not is_created_by_current_user(todo):
         abort(403)
 
     todo.title = request.form['title']
@@ -150,15 +163,10 @@ def todo_update(todo_id):
     return redirect(url_for('todo_edit', todo_id=todo.id))
 
 
-@app.route('/todos/<todo_id>/delete', methods=['POST'])
+@app.route('/todos/<int:todo_id>/delete', methods=['POST'])
 def todo_destroy(todo_id):
-    user_id = session.get('user_id')
-    if not user_id:
-        abort(401)
-
-    # Check the todo edited is owned by the user
     todo = Todo.query.get_or_404(todo_id)
-    if todo.user_id != user_id:
+    if not is_created_by_current_user(todo):
         abort(403)
 
     db.session.delete(todo)
@@ -168,15 +176,9 @@ def todo_destroy(todo_id):
 
 @app.route('/tasks/create', methods=['POST'])
 def task_create():
-    user_id = session.get('user_id')
-    if not user_id:
-        abort(401)
-
     todo_id = request.form['todo_id']
-
-    # Check the todo edited is owned by the user
     todo = Todo.query.get_or_404(todo_id)
-    if todo.user_id != user_id:
+    if not is_created_by_current_user(todo):
         abort(403)
 
     task = Task(request.form['task'], todo_id)
@@ -185,14 +187,10 @@ def task_create():
     return redirect(url_for('todo_edit', todo_id=todo.id))
 
 
-@app.route('/task/<task_id>/update', methods=['POST'])
+@app.route('/task/<int:task_id>/update', methods=['POST'])
 def task_update(task_id):
-    user_id = session.get('user_id')
-    if not user_id:
-        abort(401)
-
     task = Task.query.get_or_404(task_id)
-    if task.todo.user_id != user_id:
+    if not is_created_by_current_user(task.todo):
         abort(403)
 
     task.done = not task.done
@@ -201,7 +199,7 @@ def task_update(task_id):
     return redirect(url_for('todo_edit', todo_id=task.todo_id))
 
 
-@app.route('/tasks/<task_id>/delete', methods=['POST'])
+@app.route('/tasks/<int:task_id>/delete', methods=['POST'])
 def task_destroy(task_id):
     user_id = session.get('user_id')
     if not user_id:

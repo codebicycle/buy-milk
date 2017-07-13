@@ -33,7 +33,7 @@ class Todo(db.Model):
     tasks = db.relationship('Task', backref='todo', lazy='select')
 
 
-    def __init__(self, title, user_id, private=False):
+    def __init__(self, title, user_id=None, private=False):
         self.title = title
         self.user_id = user_id
         self.private = private
