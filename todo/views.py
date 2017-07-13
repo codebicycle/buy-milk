@@ -154,13 +154,15 @@ def is_created_by_current_user(todo):
         return todo.user_id == user_id
     elif 'new_todos' in session:
         return todo.id in session['new_todos']
+    elif 'can_edit' in session:
+        return todo.id == session['can_edit']
     else:
         return False
 
 
 @app.route('/todos/<int:todo_id>', methods=['POST'])
 def todo_update(todo_id):
-    todo = Todo.query.get_or_404(todo_id)
+    todo = Todo.query.filter_by().get_or_404(todo_id)
     if not is_created_by_current_user(todo):
         abort(403)
 
@@ -178,6 +180,29 @@ def todo_destroy(todo_id):
     db.session.delete(todo)
     db.session.commit()
     return redirect(url_for('todos_show'))
+
+
+@app.route('/<url_token>', methods=['GET'])
+def shared_todo(url_token):
+    todo = Todo.query.filter_by(url_token=url_token).first_or_404()
+    session['can_edit'] = todo.id
+
+    return render_template('todo_edit.html', todo=todo)
+
+
+@app.route('/todos/<int:todo_id>/share', methods=["POST"])
+def url_create(todo_id):
+    todo = Todo.query.get_or_404(todo_id)
+    if not is_created_by_current_user(todo):
+        abort(403)
+
+    if not todo.url_token:
+        todo.url_token = token_urlsafe(16)
+        db.session.commit()
+
+    shareable_url = url_for('shared_todo', url_token=todo.url_token,
+        _external=True)
+    return shareable_url
 
 
 @app.route('/tasks/create', methods=['POST'])

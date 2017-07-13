@@ -4,6 +4,12 @@
 
 {% block content %}
 
+
+<form method="post" action="{{ url_for('url_create', todo_id=todo.id) }}">
+  <button type="submit" class="btn btn-sm btn-secondary">Share</button>
+  <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
+</form>
+
 <div class="dropdown text-right mb-2">
   <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     <span class="gear">⚙</span>
