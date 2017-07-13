@@ -7,7 +7,6 @@ Demo at [buymilk.herokuapp.com](https://buymilk.herokuapp.com)
 ## Run
 
     export FLASK_APP=todo/__init__.py
-    export FLASK_DEBUG=true
     flask run
 
 ## Install
