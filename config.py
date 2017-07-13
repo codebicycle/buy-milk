@@ -15,3 +15,4 @@ SQLALCHEMY_DATABASE_URI = (
     'sqlite:///' + os.path.join(base_dir, 'todo', 'development.sqlite3')
 )
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+PREFERRED_URL_SCHEME = 'https'
