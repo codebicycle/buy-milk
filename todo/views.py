@@ -1,3 +1,5 @@
+from secrets import token_urlsafe
+
 from flask import (render_template, request, session, redirect, url_for,
                    flash, abort)
 from sqlalchemy.exc import IntegrityError
@@ -6,7 +8,7 @@ from sqlalchemy import or_, desc
 from todo import app
 from todo import db
 from todo.models import User, Todo, Task
-from todo.utils import https_only, token_urlsafe
+from todo.utils import https_only
 
 
 @app.route('/')
@@ -222,7 +224,7 @@ def task_destroy(task_id):
 @app.before_request
 def csrf_protect():
     if request.method == 'GET' and 'csrf_token' not in session:
-        session['csrf_token'] = token_urlsafe()
+        session['csrf_token'] = token_urlsafe(16)
         return None
 
     if request.method in ['POST', 'PUT', 'DELETE']:
