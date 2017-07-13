@@ -30,7 +30,8 @@ class Todo(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     private = db.Column(db.Boolean)
     date_created = db.Column(db.DateTime)
-    tasks = db.relationship('Task', backref='todo', lazy='select')
+    tasks = db.relationship('Task', backref='todo', lazy='select',
+        order_by='Task.id')
 
 
     def __init__(self, title, user_id=None, private=False):

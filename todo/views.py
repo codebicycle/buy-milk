@@ -1,7 +1,7 @@
 from flask import (render_template, request, session, redirect, url_for,
                    flash, abort)
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import or_
+from sqlalchemy import or_, desc
 
 from todo import app
 from todo import db
@@ -81,18 +81,22 @@ def accounts_create():
 @app.route('/todos/', methods=['GET'])
 def todos_show():
     if 'user_id' in session:
-        user_todos = Todo.query.filter_by(user_id=session['user_id'])
+        user_todos = Todo.query.filter_by(user_id=session['user_id']
+            ).order_by(desc(Todo.date_created)).all()
+
         others_todos = (Todo.query
             .filter(Todo.private == False)
             .filter(or_(Todo.user_id != session['user_id'],
                         Todo.user_id.is_(None)))
-        ).all()
+        ).order_by(desc(Todo.date_created)).all()
     elif 'new_todos' in session:
-        user_todos = Todo.query.filter(Todo.id.in_(session['new_todos'])).all()
+        user_todos = Todo.query.filter(Todo.id.in_(session['new_todos'])
+            ).order_by(desc(Todo.date_created)).all()
+
         others_todos = (Todo.query
             .filter(Todo.private == False)
             .filter(Todo.id.notin_(session['new_todos']))
-        ).all()
+        ).order_by(desc(Todo.date_created)).all()
     else:
         user_todos = []
         others_todos = Todo.query.all()
