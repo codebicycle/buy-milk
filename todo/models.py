@@ -32,6 +32,7 @@ class Todo(db.Model):
     date_created = db.Column(db.DateTime)
     tasks = db.relationship('Task', backref='todo', lazy='select',
         order_by='Task.id')
+    url_token = db.Column(db.String(25))
 
 
     def __init__(self, title, user_id=None, private=False):
