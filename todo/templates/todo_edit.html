@@ -4,7 +4,7 @@
 
 {% block content %}
 
-
+{% if not session.get('can_edit') %}
 <form method="post" action="{{ url_for('url_create', todo_id=todo.id) }}">
   <button type="submit" class="btn btn-sm btn-secondary">Share</button>
   <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
@@ -21,10 +21,12 @@
     </form>
   </div>
 </div>
+{% endif %}
 
 <form method="post" action="{{ url_for('todo_update', todo_id=todo.id) }}">
   <input class="mb-2 edit-in-place" type="text" name="title" value="{{ todo.title }}">
   <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
+  <input type="hidden" name="next-url" value="{{ next_url }}">
   <input type="submit" value="Update" class="hidden">
 </form>
 
@@ -36,6 +38,7 @@
       <button class="task {% if task.done %}task-done{% endif %}">
         {{ task.title }}
       </button>
+      <input type="hidden" name="next-url" value="{{ next_url }}">
       <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
     </form>
 
@@ -43,6 +46,7 @@
       <button class="close" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
+      <input type="hidden" name="next-url" value="{{ next_url }}">
       <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
     </form>
   </li>
@@ -58,6 +62,7 @@
     </span>
   </div>
   <input type="hidden" name="todo_id" value="{{ todo.id }}">
+  <input type="hidden" name="next-url" value="{{ next_url }}">
   <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
 </form>
 

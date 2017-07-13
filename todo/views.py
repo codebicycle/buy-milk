@@ -14,6 +14,7 @@ from todo.utils import https_only
 @app.route('/')
 @app.route('/index')
 def index():
+    session.pop('can_edit', None)
     return redirect(url_for('todos_show'))
 
 
@@ -80,8 +81,11 @@ def accounts_create():
     return redirect(url_for('index'))
 
 
+# Todos
+
 @app.route('/todos/', methods=['GET'])
 def todos_show():
+    session.pop('can_edit', None)
     if 'user_id' in session:
         user_todos = Todo.query.filter_by(user_id=session['user_id']
             ).order_by(desc(Todo.date_created)).all()
@@ -109,11 +113,13 @@ def todos_show():
 
 @app.route('/todos/new', methods=['GET'])
 def todo_new():
+    session.pop('can_edit', None)
     return render_template('todo_new.html')
 
 
 @app.route('/todos/create', methods=['POST'])
 def todo_create():
+    session.pop('can_edit', None)
     user_id = session.get('user_id')
     # if not user_id:
     #     abort(401)
@@ -141,6 +147,7 @@ def todo_show(todo_id):
 
 @app.route('/todos/<int:todo_id>/edit', methods=['GET'])
 def todo_edit(todo_id):
+    session.pop('can_edit', None)
     todo = Todo.query.get_or_404(todo_id)
     if not is_created_by_current_user(todo):
         return redirect(url_for('todo_show', todo_id=todo_id))
@@ -162,13 +169,14 @@ def is_created_by_current_user(todo):
 
 @app.route('/todos/<int:todo_id>', methods=['POST'])
 def todo_update(todo_id):
-    todo = Todo.query.filter_by().get_or_404(todo_id)
+    todo = Todo.query.get_or_404(todo_id)
     if not is_created_by_current_user(todo):
         abort(403)
 
     todo.title = request.form['title']
     db.session.commit()
-    return redirect(url_for('todo_edit', todo_id=todo.id))
+    session.pop('can_edit', None)
+    return redirect_next(url_for('todo_edit', todo_id=todo.id))
 
 
 @app.route('/todos/<int:todo_id>/delete', methods=['POST'])
@@ -179,15 +187,22 @@ def todo_destroy(todo_id):
 
     db.session.delete(todo)
     db.session.commit()
-    return redirect(url_for('todos_show'))
+    session.pop('can_edit', None)
+    return redirect_next(url_for('todos_show'))
 
+
+# Share URL
 
 @app.route('/<url_token>', methods=['GET'])
 def shared_todo(url_token):
     todo = Todo.query.filter_by(url_token=url_token).first_or_404()
     session['can_edit'] = todo.id
 
-    return render_template('todo_edit.html', todo=todo)
+    this_url = url_for('shared_todo', url_token=todo.url_token,
+        _external=True)
+
+    return render_template('todo_edit.html', todo=todo,
+        next_url=this_url)
 
 
 @app.route('/todos/<int:todo_id>/share', methods=["POST"])
@@ -205,6 +220,8 @@ def url_create(todo_id):
     return shareable_url
 
 
+# Tasks
+
 @app.route('/tasks/create', methods=['POST'])
 def task_create():
     todo_id = request.form['todo_id']
@@ -215,7 +232,8 @@ def task_create():
     task = Task(request.form['task'], todo_id)
     db.session.add(task)
     db.session.commit()
-    return redirect(url_for('todo_edit', todo_id=todo.id))
+    session.pop('can_edit', None)
+    return redirect_next(url_for('todo_edit', todo_id=todo.id))
 
 
 @app.route('/task/<int:task_id>/update', methods=['POST'])
@@ -226,24 +244,20 @@ def task_update(task_id):
 
     task.done = not task.done
     db.session.commit()
-
-    return redirect(url_for('todo_edit', todo_id=task.todo_id))
+    session.pop('can_edit', None)
+    return redirect_next(url_for('todo_edit', todo_id=task.todo_id))
 
 
 @app.route('/tasks/<int:task_id>/delete', methods=['POST'])
 def task_destroy(task_id):
-    user_id = session.get('user_id')
-    if not user_id:
-        abort(401)
-
     task = Task.query.get_or_404(task_id)
-    if task.todo.user_id != user_id:
+    if not is_created_by_current_user(task.todo):
         abort(403)
 
     db.session.delete(task)
     db.session.commit()
-
-    return redirect(url_for('todo_edit', todo_id=task.todo_id))
+    session.pop('can_edit', None)
+    return redirect_next(url_for('todo_edit', todo_id=task.todo_id))
 
 
 @app.before_request
@@ -256,3 +270,11 @@ def csrf_protect():
         token = session.pop('csrf_token', None)
         if not token or token != request.form.get('csrf-token'):
             abort(403)
+
+
+def redirect_next(*args, **kwargs):
+    next_url = request.form.get('next-url')
+    if next_url:
+        return redirect(next_url)
+
+    return redirect(*args, **kwargs)
