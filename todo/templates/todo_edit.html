@@ -29,7 +29,7 @@
 {% endif %}
 
 <form method="post" action="{{ url_for('todo_update', todo_id=todo.id) }}">
-  <input class="mb-2 edit-in-place" type="text" name="title" value="{{ todo.title }}">
+  <input class="mb-2 edit-in-place" type="text" name="title" value="{{ todo.title }}" placeholder="untitled">
   <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
   <input type="hidden" name="next-url" value="{{ next_url }}">
   <input type="submit" value="Update" class="hidden">
@@ -58,7 +58,6 @@
 {% endfor %}
 </ul>
 <br>
-
 <form method="post" action="{{ url_for('task_create') }}">
   <div class="input-group">
     <input type="text" class="form-control" name="task" placeholder="add task" autofocus>

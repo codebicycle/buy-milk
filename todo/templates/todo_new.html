@@ -5,12 +5,18 @@
 {% block content %}
 
 <form method="post" action="{{ url_for('todo_create') }}">
-  <div class="input-group">
-    <input class="form-control" type="text" name="title" placeholder="add title" autofocus>
+	<div class="form-group">
+		<input class="form-control" type="text" name="title" placeholder="title">
+	</div>
+
+  <div class="form-group input-group">
+    <input type="text" class="form-control" name="task" placeholder="add task" autofocus>
     <span class="input-group-btn">
       <button class="btn btn-secondary" type="submit">Add</button>
     </span>
   </div>
+
   <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
 </form>
+
 {% endblock %}
