@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ Share }}{% endblock %}
+
+{% block content %}
+	
+<a class="btn btn-secondary mb-4" href="{{ back_url }}"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>
+
+<div class="alert alert-warning" role="alert">
+	<span>Anyone with this URL can edit the todo.</span>
+</div>
+<input class="w-100" id="shareable-url" type="text" readonly autofocus value="{{ shareable_url }}">
+
+{% endblock %}
+
+
+{% block script %}
+<script type="text/javascript">
+	$(function() {
+		$('#shareable-url').focus().select()
+		$('#shareable-url').click(function() {this.select();});
+	});
+</script>
+{% endblock %}

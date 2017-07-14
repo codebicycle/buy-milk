@@ -105,7 +105,7 @@ def todos_show():
         ).order_by(desc(Todo.date_created)).all()
     else:
         user_todos = []
-        others_todos = Todo.query.all()
+        others_todos = Todo.query.order_by(desc(Todo.date_created)).all()
 
     return render_template('todos_show.html', user_todos=user_todos,
                             others_todos=others_todos)
@@ -121,17 +121,20 @@ def todo_new():
 def todo_create():
     session.pop('can_edit', None)
     user_id = session.get('user_id')
-    # if not user_id:
-    #     abort(401)
 
     title = request.form['title']
     todo = Todo(title, user_id)
     db.session.add(todo)
     db.session.commit()
+
     if user_id not in session:
         if 'new_todos' not in session:
             session['new_todos'] = list()
         session['new_todos'].append(todo.id)
+
+    task = Task(request.form['task'], todo.id)
+    db.session.add(task)
+    db.session.commit()
 
     return redirect(url_for('todo_edit', todo_id=todo.id))
 
@@ -215,9 +218,24 @@ def url_create(todo_id):
         todo.url_token = token_urlsafe(16)
         db.session.commit()
 
+    return redirect(url_for('url_show', todo_id=todo.id))
+
+
+@app.route('/todos/<int:todo_id>/share', methods=['GET'])
+def url_show(todo_id):
+    todo = Todo.query.get_or_404(todo_id)
+    if not is_created_by_current_user(todo):
+        abort(403)
+
+    if not todo.url_token:
+        abort(404)
+
     shareable_url = url_for('shared_todo', url_token=todo.url_token,
-        _external=True)
-    return shareable_url
+    _external=True)
+    back_url = url_for('todo_edit', todo_id=todo.id)
+
+    return render_template('url_show.html', shareable_url=shareable_url,
+        back_url=back_url)
 
 
 # Tasks
