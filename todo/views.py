@@ -278,18 +278,6 @@ def task_destroy(task_id):
     return redirect_next(url_for('todo_edit', todo_id=task.todo_id))
 
 
-@app.before_request
-def csrf_protect():
-    if request.method == 'GET' and 'csrf_token' not in session:
-        session['csrf_token'] = token_urlsafe(16)
-        return None
-
-    if request.method in ['POST', 'PUT', 'DELETE']:
-        token = session.pop('csrf_token', None)
-        if not token or token != request.form.get('csrf-token'):
-            abort(403)
-
-
 def redirect_next(*args, **kwargs):
     next_url = request.form.get('next-url')
     if next_url:
