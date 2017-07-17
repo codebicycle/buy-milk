@@ -7,6 +7,7 @@ from sqlalchemy import or_, desc
 
 from todo import app
 from todo import db
+from todo.forms import LoginForm
 from todo.models import User, Todo, Task
 from todo.utils import https_only
 
@@ -20,23 +21,20 @@ def index():
 
 @app.route('/login', methods=['GET'])
 def sessions_new():
-    email = request.args.get('email')
-    return render_template('login.html', email=email)
+    form = LoginForm()
+    return render_template('login.html', form=form)
 
 
 @app.route('/login', methods=['POST'])
 def sessions_create():
-    session.clear()
-    email = request.form['email']
-    password = request.form['password']
-    user = User.query.filter_by(email=email.lower()).first()
-    if user and user.is_valid_password(password):
-        session['email'] = user.email
-        session['user_id'] = user.id
+    clear_user_from_session()
+    form = LoginForm(request.form)
+    if form.validate_on_submit():
+        session['email'] = form.user.email
+        session['user_id'] = form.user.id
         return redirect(url_for('index'))
-    else:
-        flash("Email and password do not match!", 'error')
-        return redirect(url_for('sessions_new', email=email))
+
+    return render_template('login.html', form=form)
 
 
 @app.route('/logout', methods=['POST'])
@@ -284,3 +282,8 @@ def redirect_next(*args, **kwargs):
         return redirect(next_url)
 
     return redirect(*args, **kwargs)
+
+
+def clear_user_from_session():
+    session.pop('email', None)
+    session.pop('user_id', None)
