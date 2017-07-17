@@ -4,7 +4,7 @@
   <div class="form-group has-danger">
     {% if show_label %}<label class="form-control-label">{{ field.label }}</label>{% endif %}
 
-    {{ field(class_='form-control form-control-danger', **kwargs)|safe }}
+    {{ field(class_='form-control form-control', **kwargs)|safe }}
 
     <ul class="form-control-feedback list-unstyled">
     {% for error in field.errors %}
