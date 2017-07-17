@@ -63,13 +63,13 @@ def accounts_create():
     except IntegrityError as e:
         app.logger.error(e)
         message = 'An account using {} is already registered!'.format(email)
-        flash(message, 'error')
+        flash(message, 'danger')
         return redirect(url_for('accounts_new'))
 
     session.clear()
     session['email'] = user.email
     session['user_id'] = user.id
-    flash('{} succesfully registered'.format(email))
+    flash('{} succesfully registered'.format(email), 'success')
     return redirect(url_for('index'))
 
 

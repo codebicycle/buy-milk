@@ -17,9 +17,10 @@
   <div class="container">
 
     {% with messages = get_flashed_messages(with_categories=True) %}
-        {% for category, message in messages %}
-          <p class="{{ category }}">{{ message }}</p>
-        {% endfor %}
+      {% for category, message in messages %}
+      {# Use Bootstrap alert classes as categories #}
+      <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+      {% endfor %}
     {% endwith %}
 
     {% block content %}{% endblock %}
