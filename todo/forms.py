@@ -1,12 +1,12 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import InputRequired, Length, EqualTo
 
 from todo.models import User
 
 class LoginForm(FlaskForm):
-    email = StringField('email', validators=[DataRequired()])
-    password = PasswordField('password', validators=[DataRequired()])
+    email = StringField('email', validators=[InputRequired()])
+    password = PasswordField('password', validators=[InputRequired()])
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
@@ -25,4 +25,29 @@ class LoginForm(FlaskForm):
             return False
 
         self.user = user
+        return True
+
+
+class RegisterForm(FlaskForm):
+    email = StringField('email', validators=[InputRequired()])
+    password = PasswordField('password', validators=[
+        InputRequired(),
+        Length(min=3),
+    ])
+    confirm = PasswordField('Repeat password', validators=[
+        InputRequired(),
+        EqualTo('password', message='Passwords must match.'),
+    ])
+
+    def validate(self):
+        is_valid = FlaskForm.validate(self)
+        if not is_valid:
+            return False
+
+        email = self.email.data.lower()
+        user = User.query.filter_by(email=email).first()
+        if user:
+            self.email.errors.append('An account using this email is already registered.')
+            return False
+
         return True

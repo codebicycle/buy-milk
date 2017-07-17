@@ -1,18 +1,17 @@
 {% extends 'base.html' %}
+{% from '_formhelpers.html' import render_field %}
 
 {% block title %}Create Account{% endblock %}
 
 {% block content %}
+<div class="col col-6">
   <h1>Create account</h1>
-  <form method="Post" action="/register">
-    <input type="email" placeholder="email" name="email"
-      value="{% if email %}{{email}}{% endif %}" autofocus>
-    <br>
-    <input type="password" placeholder="password" name="password">
-    <br>
-    <input type="password" placeholder="verify password" name="password_confirm">
-    <br>
+  <form method="post" action="/register">
+    {{ form.csrf_token }}
+    {{ render_field(form.email, placeholder='email', type='email') }}
+    {{ render_field(form.password, placeholder='password') }}
+    {{ render_field(form.confirm, placeholder='repeat password') }}
     <input type="submit" value="Create account">
-    <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
   </form>
+</div>
 {% endblock %}

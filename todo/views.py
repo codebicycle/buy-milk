@@ -7,7 +7,7 @@ from sqlalchemy import or_, desc
 
 from todo import app
 from todo import db
-from todo.forms import LoginForm
+from todo.forms import LoginForm, RegisterForm
 from todo.models import User, Todo, Task
 from todo.utils import https_only
 
@@ -45,24 +45,18 @@ def sessions_destroy():
 
 @app.route('/register', methods=['GET'])
 def accounts_new():
-    email = request.args.get('email')
-    return render_template('register.html', email=email)
+    form = RegisterForm()
+    return render_template('register.html', form=form)
 
 
 @app.route('/register', methods=['POST'])
 def accounts_create():
-    email = request.form['email']
-    password = request.form['password']
-    password_confirm = request.form['password_confirm']
-    if not email or not password or not password_confirm:
-        flash("All fields should be filled!", 'error')
-        return redirect(url_for('accounts_new', email=email))
+    form = RegisterForm(request.form)
+    if not form.validate_on_submit():
+        return render_template('register.html', form=form)
 
-    if password != password_confirm:
-        flash("Passwords do not match!", 'error')
-        return redirect(url_for('accounts_new', email=email))
-
-    user = User(email, password)
+    email = form.email.data.lower()
+    user = User(email, form.password.data)
     try:
         db.session.add(user)
         db.session.commit()
@@ -72,10 +66,10 @@ def accounts_create():
         flash(message, 'error')
         return redirect(url_for('accounts_new'))
 
-    flash('{} succesfully registered'.format(email))
     session.clear()
     session['email'] = user.email
     session['user_id'] = user.id
+    flash('{} succesfully registered'.format(email))
     return redirect(url_for('index'))
 
 
