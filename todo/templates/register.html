@@ -8,7 +8,7 @@
   <h1>Create account</h1>
   <form method="post" action="/register">
     {{ form.csrf_token }}
-    {{ render_field(form.email, placeholder='email', type='email') }}
+    {{ render_field(form.email, placeholder='email', type='email', autofocus='True') }}
     {{ render_field(form.password, placeholder='password') }}
     {{ render_field(form.confirm, placeholder='repeat password') }}
     <input type="submit" value="Create account">
