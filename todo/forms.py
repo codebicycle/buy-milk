@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
-from wtforms.validators import InputRequired, Length, EqualTo, Email
+from wtforms.validators import (InputRequired, Length, EqualTo, Email, Optional,
+    DataRequired)
 
 from todo.models import User
 
@@ -57,3 +58,8 @@ class RegisterForm(FlaskForm):
             return False
 
         return True
+
+
+class TodoNewForm(FlaskForm):
+    title = StringField('title')
+    task = StringField('task', validators=[DataRequired()])

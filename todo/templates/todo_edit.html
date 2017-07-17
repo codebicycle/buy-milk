@@ -58,16 +58,37 @@
 {% endfor %}
 </ul>
 <br>
+
 <form method="post" action="{{ url_for('task_create') }}">
-  <div class="input-group">
-    <input type="text" class="form-control" name="task" placeholder="add task" autofocus>
-    <span class="input-group-btn">
-      <button class="btn btn-secondary" type="submit">Add</button>
-    </span>
+  {{ form.csrf_token }}
+
+  {% if form.task.errors %}
+  <div class="form-group has-danger">
+    <div class="input-group">
+      {{ form.task(placeholder='add task', autofocus='True', class_='form-control form-control-danger') }}
+      <span class="input-group-btn">
+        <button class="btn btn-secondary" type="submit">Add</button>
+      </span>
+    </div>
+    <ul class="form-control-feedback list-unstyled">
+      {% for error in form.task.errors %}
+        <li class="form-errors">{{ error }}</li>
+      {% endfor %}
+      </ul>
+    </div>
   </div>
+  {% else %}
+  <div class="form-group">
+    <div class="input-group">
+      {{ form.task(placeholder='add task', autofocus='True', class_='form-control') }}
+      <span class="input-group-btn">
+        <button class="btn btn-secondary" type="submit">Add</button>
+      </span>
+    </div>
+  </div>
+  {% endif %}
   <input type="hidden" name="todo_id" value="{{ todo.id }}">
   <input type="hidden" name="next-url" value="{{ next_url }}">
-  <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
 </form>
 
 {% endblock %}

@@ -7,7 +7,7 @@ from sqlalchemy import or_, desc
 
 from todo import app
 from todo import db
-from todo.forms import LoginForm, RegisterForm
+from todo.forms import LoginForm, RegisterForm, TodoNewForm
 from todo.models import User, Todo, Task
 from todo.utils import https_only
 
@@ -106,15 +106,20 @@ def todos_show():
 @app.route('/todos/new', methods=['GET'])
 def todo_new():
     session.pop('can_edit', None)
-    return render_template('todo_new.html')
+    form = TodoNewForm()
+    return render_template('todo_new.html', form=form)
 
 
 @app.route('/todos/create', methods=['POST'])
 def todo_create():
     session.pop('can_edit', None)
+    form = TodoNewForm(request.form)
+    if not form.validate_on_submit():
+        return render_template('todo_new.html', form=form)
+
     user_id = session.get('user_id')
 
-    title = request.form['title']
+    title = request.form['title'].strip()
     todo = Todo(title, user_id)
     db.session.add(todo)
     db.session.commit()
@@ -124,7 +129,8 @@ def todo_create():
             session['new_todos'] = list()
         session['new_todos'].append(todo.id)
 
-    task = Task(request.form['task'], todo.id)
+    task_title = request.form['task'].strip()
+    task = Task(task_title, todo.id)
     db.session.add(task)
     db.session.commit()
 
@@ -147,7 +153,8 @@ def todo_edit(todo_id):
     if not is_created_by_current_user(todo):
         return redirect(url_for('todo_show', todo_id=todo_id))
 
-    return render_template('todo_edit.html', todo=todo)
+    form = TodoNewForm()
+    return render_template('todo_edit.html', todo=todo, form=form)
 
 
 def is_created_by_current_user(todo):
@@ -168,7 +175,7 @@ def todo_update(todo_id):
     if not is_created_by_current_user(todo):
         abort(403)
 
-    todo.title = request.form['title']
+    todo.title = request.form['title'].strip()
     db.session.commit()
     session.pop('can_edit', None)
     return redirect_next(url_for('todo_edit', todo_id=todo.id))
@@ -238,6 +245,10 @@ def task_create():
     todo = Todo.query.get_or_404(todo_id)
     if not is_created_by_current_user(todo):
         abort(403)
+
+    form = TodoNewForm(request.form)
+    if not form.validate_on_submit():
+        return render_template('todo_edit.html', todo=todo, form=form)
 
     task = Task(request.form['task'], todo_id)
     db.session.add(task)
