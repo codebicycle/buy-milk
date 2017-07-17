@@ -1,11 +1,14 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
-from wtforms.validators import InputRequired, Length, EqualTo
+from wtforms.validators import InputRequired, Length, EqualTo, Email
 
 from todo.models import User
 
 class LoginForm(FlaskForm):
-    email = StringField('email', validators=[InputRequired()])
+    email = StringField('email', validators=[
+        InputRequired(),
+        Email(),
+    ])
     password = PasswordField('password', validators=[InputRequired()])
 
     def __init__(self, *args, **kwargs):
@@ -29,7 +32,10 @@ class LoginForm(FlaskForm):
 
 
 class RegisterForm(FlaskForm):
-    email = StringField('email', validators=[InputRequired()])
+    email = StringField('email', validators=[
+        InputRequired(),
+        Email(),
+    ])
     password = PasswordField('password', validators=[
         InputRequired(),
         Length(min=3),
