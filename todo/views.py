@@ -4,6 +4,7 @@ from flask import (render_template, request, session, redirect, url_for,
                    flash, abort)
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_, desc
+from werkzeug.exceptions import HTTPException
 
 from todo import app
 from todo import db
@@ -295,6 +296,26 @@ def task_destroy(task_id):
     db.session.commit()
     session.pop('can_edit', None)
     return redirect_next(url_for('todo_edit', todo_id=task.todo_id))
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(400)
+def bad_request(e):
+    return render_template('400.html', error=e), 400
+
+
+@app.errorhandler(403)
+def forbiden(e):
+    return render_template('403.html', error=e), 403
+
+
+@app.errorhandler(HTTPException)
+def http_error_handler(e):
+    return render_template('error.html', error=e), e.code
 
 
 def redirect_next(*args, **kwargs):
