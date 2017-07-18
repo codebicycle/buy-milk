@@ -4,7 +4,7 @@
 
 {% block content %}
 
-  <p class="h1">{{ todo.title }}</h1>
+  <p class="h1">{{ todo.title or 'untitled' }}</h1>
   <ul class="list-group">
   {% for task in todo.tasks %}
     <li class="list-group-item {% if task.done %}task-done{% endif %}">{{ task.title }}</li>

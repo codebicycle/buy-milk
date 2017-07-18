@@ -130,7 +130,7 @@ def todo_create():
         session['new_todos'].append(todo.id)
         session.modified = True
 
-    task_title = request.form['task'].strip()
+    task_title = form.task.data.strip()
     task = Task(task_title, todo.id)
     db.session.add(task)
     db.session.commit()
@@ -151,6 +151,7 @@ def todo_show(todo_id):
 def todo_edit(todo_id):
     session.pop('can_edit', None)
     todo = Todo.query.get_or_404(todo_id)
+
     if not is_created_by_current_user(todo):
         return redirect(url_for('todo_show', todo_id=todo_id))
 
@@ -263,7 +264,8 @@ def task_create():
     if not form.validate_on_submit():
         return render_template('todo_edit.html', todo=todo, form=form)
 
-    task = Task(request.form['task'], todo_id)
+    task_title = request.form['task'].strip()
+    task = Task(task_title, todo_id)
     db.session.add(task)
     db.session.commit()
     session.pop('can_edit', None)
