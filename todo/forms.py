@@ -63,7 +63,3 @@ class RegisterForm(FlaskForm):
 class TodoNewForm(FlaskForm):
     title = StringField('title')
     task = StringField('task', validators=[DataRequired()])
-
-
-class CSRF_Form(FlaskForm):
-    pass

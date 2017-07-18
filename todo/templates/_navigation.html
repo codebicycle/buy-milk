@@ -17,9 +17,9 @@
       {% if session['email'] %}
       <li class="nav-item">
           <form action="{{ url_for('sessions_destroy') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <span class="navbar-text">{{ session['email'] }}</span>
             <button class="btn-link navbar-text">Logout</button>
-            <input type="hidden" name="csrf-token" value="{{ session['csrf_token'] }}">
           </form>
       </li>
       {% else %}
