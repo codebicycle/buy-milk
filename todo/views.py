@@ -144,7 +144,7 @@ def todo_create():
 @app.route('/todos/<int:todo_id>', methods=['GET'])
 def todo_show(todo_id):
     todo = Todo.query.get_or_404(todo_id)
-    if not is_created_by_current_user(todo) and todo.private:
+    if not is_editable_by_current_user(todo) and todo.private:
         abort(403)
 
     return render_template('todo_show.html', todo=todo)
@@ -155,29 +155,33 @@ def todo_edit(todo_id):
     session.pop('can_edit', None)
     todo = Todo.query.get_or_404(todo_id)
 
-    if not is_created_by_current_user(todo):
+    if not is_editable_by_current_user(todo):
         return redirect(url_for('todo_show', todo_id=todo_id))
 
     form = TodoNewForm()
     return render_template('todo_edit.html', todo=todo, form=form)
 
 
-def is_created_by_current_user(todo):
+def is_editable_by_current_user(todo):
     user_id = session.get('user_id')
     if user_id:
         return todo.user_id == user_id
-    elif 'new_todos' in session:
-        return todo.id in session['new_todos']
-    elif 'can_edit' in session:
-        return todo.id == session['can_edit']
-    else:
-        return False
+
+    is_creator = False
+    if 'new_todos' in session and session['new_todos']:
+        is_creator = todo.id in session['new_todos']
+
+    can_edit = False
+    if 'can_edit' in session:
+        can_edit =  todo.id == session['can_edit']
+
+    return is_creator or can_edit
 
 
 @app.route('/todos/<int:todo_id>', methods=['POST'])
 def todo_update(todo_id):
     todo = Todo.query.get_or_404(todo_id)
-    if not is_created_by_current_user(todo):
+    if not is_editable_by_current_user(todo):
         abort(403)
 
     todo.title = request.form['title'].strip()
@@ -189,7 +193,7 @@ def todo_update(todo_id):
 @app.route('/todos/<int:todo_id>/delete', methods=['POST'])
 def todo_destroy(todo_id):
     todo = Todo.query.get_or_404(todo_id)
-    if not is_created_by_current_user(todo):
+    if not is_editable_by_current_user(todo):
         abort(403)
 
     if 'new_todos' in session and todo.id in session['new_todos']:
@@ -213,14 +217,15 @@ def shared_todo(url_token):
     this_url = url_for('shared_todo', url_token=todo.url_token,
         _external=True)
 
+    form = TodoNewForm()
     return render_template('todo_edit.html', todo=todo,
-        next_url=this_url)
+        next_url=this_url, form=form)
 
 
 @app.route('/todos/<int:todo_id>/share', methods=["POST"])
 def url_create(todo_id):
     todo = Todo.query.get_or_404(todo_id)
-    if not is_created_by_current_user(todo):
+    if not is_editable_by_current_user(todo):
         abort(403)
 
     if not todo.url_token:
@@ -233,7 +238,7 @@ def url_create(todo_id):
 @app.route('/todos/<int:todo_id>/share', methods=['GET'])
 def url_show(todo_id):
     todo = Todo.query.get_or_404(todo_id)
-    if not is_created_by_current_user(todo):
+    if not is_editable_by_current_user(todo):
         abort(403)
 
     if not todo.url_token:
@@ -253,7 +258,7 @@ def url_show(todo_id):
 def task_create():
     todo_id = request.form['todo_id']
     todo = Todo.query.get_or_404(todo_id)
-    if not is_created_by_current_user(todo):
+    if not is_editable_by_current_user(todo):
         abort(403)
 
     form = TodoNewForm(request.form)
@@ -271,7 +276,7 @@ def task_create():
 @app.route('/task/<int:task_id>/update', methods=['POST'])
 def task_update(task_id):
     task = Task.query.get_or_404(task_id)
-    if not is_created_by_current_user(task.todo):
+    if not is_editable_by_current_user(task.todo):
         abort(403)
 
     task.done = not task.done
@@ -283,7 +288,7 @@ def task_update(task_id):
 @app.route('/tasks/<int:task_id>/delete', methods=['POST'])
 def task_destroy(task_id):
     task = Task.query.get_or_404(task_id)
-    if not is_created_by_current_user(task.todo):
+    if not is_editable_by_current_user(task.todo):
         abort(403)
 
     db.session.delete(task)
