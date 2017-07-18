@@ -27,7 +27,7 @@ def sessions_new():
 
 @app.route('/login', methods=['POST'])
 def sessions_create():
-    clear_user_from_session()
+    clear_session()
     form = LoginForm(request.form)
     if form.validate_on_submit():
         session['email'] = form.user.email
@@ -124,10 +124,11 @@ def todo_create():
     db.session.add(todo)
     db.session.commit()
 
-    if user_id not in session:
+    if user_id is None:
         if 'new_todos' not in session:
             session['new_todos'] = list()
         session['new_todos'].append(todo.id)
+        session.modified = True
 
     task_title = request.form['task'].strip()
     task = Task(task_title, todo.id)
@@ -289,6 +290,8 @@ def redirect_next(*args, **kwargs):
     return redirect(*args, **kwargs)
 
 
-def clear_user_from_session():
-    session.pop('email', None)
-    session.pop('user_id', None)
+def clear_session():
+    csrf_token = session.pop('csrf_token', None)
+    session.clear()
+    if csrf_token:
+        session['csrf_token'] = csrf_token
