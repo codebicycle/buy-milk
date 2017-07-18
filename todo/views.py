@@ -23,12 +23,14 @@ def index():
 
 
 @app.route('/login', methods=['GET'])
+@https_only
 def sessions_new():
     form = LoginForm()
     return render_template('login.html', form=form)
 
 
 @app.route('/login', methods=['POST'])
+@https_only
 def sessions_create():
     clear_session()
     form = LoginForm(request.form)
@@ -47,12 +49,14 @@ def sessions_destroy():
 
 
 @app.route('/register', methods=['GET'])
+@https_only
 def accounts_new():
     form = RegisterForm()
     return render_template('register.html', form=form)
 
 
 @app.route('/register', methods=['POST'])
+@https_only
 def accounts_create():
     form = RegisterForm(request.form)
     if not form.validate_on_submit():
@@ -211,6 +215,7 @@ def todo_destroy(todo_id):
 # Share URL
 
 @app.route('/<url_token>', methods=['GET'])
+@https_only
 def shared_todo(url_token):
     todo = Todo.query.filter_by(url_token=url_token).first_or_404()
     session['can_edit'] = todo.id
@@ -224,6 +229,7 @@ def shared_todo(url_token):
 
 
 @app.route('/todos/<int:todo_id>/share', methods=["POST"])
+@https_only
 def url_create(todo_id):
     todo = Todo.query.get_or_404(todo_id)
     if not is_editable_by_current_user(todo):
@@ -237,6 +243,7 @@ def url_create(todo_id):
 
 
 @app.route('/todos/<int:todo_id>/share', methods=['GET'])
+@https_only
 def url_show(todo_id):
     todo = Todo.query.get_or_404(todo_id)
     if not is_editable_by_current_user(todo):
