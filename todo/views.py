@@ -7,7 +7,7 @@ from sqlalchemy import or_, desc
 
 from todo import app
 from todo import db
-from todo.forms import LoginForm, RegisterForm, TodoNewForm
+from todo.forms import LoginForm, RegisterForm, TodoNewForm, CSRF_Form
 from todo.models import User, Todo, Task
 from todo.utils import https_only
 
@@ -172,6 +172,10 @@ def is_created_by_current_user(todo):
 
 @app.route('/todos/<int:todo_id>', methods=['POST'])
 def todo_update(todo_id):
+    form = CSRF_Form(request.form)
+    if not form.validate_on_submit():
+        abort(403)
+
     todo = Todo.query.get_or_404(todo_id)
     if not is_created_by_current_user(todo):
         abort(403)
@@ -184,6 +188,10 @@ def todo_update(todo_id):
 
 @app.route('/todos/<int:todo_id>/delete', methods=['POST'])
 def todo_destroy(todo_id):
+    form = CSRF_Form(request.form)
+    if not form.validate_on_submit():
+        abort(403)
+
     todo = Todo.query.get_or_404(todo_id)
     if not is_created_by_current_user(todo):
         abort(403)
@@ -210,6 +218,10 @@ def shared_todo(url_token):
 
 @app.route('/todos/<int:todo_id>/share', methods=["POST"])
 def url_create(todo_id):
+    form = CSRF_Form(request.form)
+    if not form.validate_on_submit():
+        abort(403)
+
     todo = Todo.query.get_or_404(todo_id)
     if not is_created_by_current_user(todo):
         abort(403)
@@ -260,6 +272,10 @@ def task_create():
 
 @app.route('/task/<int:task_id>/update', methods=['POST'])
 def task_update(task_id):
+    form = CSRF_Form(request.form)
+    if not form.validate_on_submit():
+        abort(403)
+
     task = Task.query.get_or_404(task_id)
     if not is_created_by_current_user(task.todo):
         abort(403)
@@ -272,6 +288,10 @@ def task_update(task_id):
 
 @app.route('/tasks/<int:task_id>/delete', methods=['POST'])
 def task_destroy(task_id):
+    form = CSRF_Form(request.form)
+    if not form.validate_on_submit():
+        abort(403)
+
     task = Task.query.get_or_404(task_id)
     if not is_created_by_current_user(task.todo):
         abort(403)
