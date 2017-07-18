@@ -88,6 +88,24 @@ def todos_show():
     return render_template('todos_show.html', todos=pagination)
 
 
+@app.route('/my-todos')
+def my_todos():
+    page = (request.args.get('page', 1, type=int))
+
+    if 'user_id' in session:
+        user_todos = Todo.query.filter_by(user_id=session['user_id']
+            ).order_by(desc(Todo.date_created))
+    elif 'new_todos' in session and session['new_todos']:
+        user_todos = Todo.query.filter(Todo.id.in_(session['new_todos'])
+            ).order_by(desc(Todo.date_created))
+    else:
+        flash('You don\'t have any todos.', 'danger')
+        return redirect(url_for('index'))
+
+    pagination = user_todos.paginate(page, PER_PAGE, False)
+    return render_template('todos_show.html', todos=pagination)
+
+
 @app.route('/todos/new', methods=['GET'])
 def todo_new():
     session.pop('can_edit', None)
@@ -174,8 +192,13 @@ def todo_destroy(todo_id):
     if not is_created_by_current_user(todo):
         abort(403)
 
+    if 'new_todos' in session and todo.id in session['new_todos']:
+        session['new_todos'].remove(todo.id)
+        session.modified = True
+
     db.session.delete(todo)
     db.session.commit()
+
     session.pop('can_edit', None)
     return redirect_next(url_for('todos_show'))
 
