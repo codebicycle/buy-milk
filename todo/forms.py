@@ -8,9 +8,13 @@ from todo.models import User
 class LoginForm(FlaskForm):
     email = StringField('email', validators=[
         InputRequired(),
+        Length(max=255),
         Email(),
     ])
-    password = PasswordField('password', validators=[InputRequired()])
+    password = PasswordField('password', validators=[
+        InputRequired(),
+        Length(max=255),
+    ])
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
@@ -35,14 +39,16 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
     email = StringField('email', validators=[
         InputRequired(),
+        Length(max=255),
         Email(),
     ])
     password = PasswordField('password', validators=[
         InputRequired(),
-        Length(min=3),
+        Length(min=3, max=255),
     ])
     confirm = PasswordField('Repeat password', validators=[
         InputRequired(),
+        Length(max=255),
         EqualTo('password', message='Passwords must match.'),
     ])
 
@@ -61,5 +67,8 @@ class RegisterForm(FlaskForm):
 
 
 class TodoNewForm(FlaskForm):
-    title = StringField('title')
-    task = StringField('task', validators=[DataRequired()])
+    title = StringField('title', validators=[Length(max=255)])
+    task = StringField('task', validators=[
+        DataRequired(),
+        Length(max=255)
+    ])
