@@ -11,6 +11,8 @@ from todo.forms import LoginForm, RegisterForm, TodoNewForm
 from todo.models import User, Todo, Task
 from todo.utils import https_only
 
+PER_PAGE = app.config.get('PER_PAGE', 4)
+
 
 @app.route('/')
 @app.route('/index')
@@ -78,29 +80,12 @@ def accounts_create():
 @app.route('/todos/', methods=['GET'])
 def todos_show():
     session.pop('can_edit', None)
-    if 'user_id' in session:
-        user_todos = Todo.query.filter_by(user_id=session['user_id']
-            ).order_by(desc(Todo.date_created)).all()
+    page = request.args.get('page', 1, type=int)
 
-        others_todos = (Todo.query
-            .filter(Todo.private == False)
-            .filter(or_(Todo.user_id != session['user_id'],
-                        Todo.user_id.is_(None)))
-        ).order_by(desc(Todo.date_created)).all()
-    elif 'new_todos' in session:
-        user_todos = Todo.query.filter(Todo.id.in_(session['new_todos'])
-            ).order_by(desc(Todo.date_created)).all()
+    todos = Todo.query.filter(Todo.private == False).order_by(desc(Todo.date_created))
+    pagination = todos.paginate(page, PER_PAGE, False)
 
-        others_todos = (Todo.query
-            .filter(Todo.private == False)
-            .filter(Todo.id.notin_(session['new_todos']))
-        ).order_by(desc(Todo.date_created)).all()
-    else:
-        user_todos = []
-        others_todos = Todo.query.order_by(desc(Todo.date_created)).all()
-
-    return render_template('todos_show.html', user_todos=user_todos,
-                            others_todos=others_todos)
+    return render_template('todos_show.html', todos=pagination)
 
 
 @app.route('/todos/new', methods=['GET'])
